@@ -1,0 +1,9 @@
+name: HexVG-DataComponents
+version: '${project.version}'
+main: com.venomgrave.hexvg.datacomponents.HexVGDataComponents
+description: Skript addon for Minecraft Data Components API
+api-version: '1.21'
+authors:
+  - VenomGrave
+depend:
+  - Skript
