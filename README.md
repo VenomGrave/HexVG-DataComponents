@@ -11,7 +11,6 @@ No NBT. No Java. Just clean Skript syntax.
 [![Java](https://img.shields.io/badge/Java-21%2B-orange)](https://adoptium.net/)
 [![License](https://img.shields.io/badge/License-MIT-yellow)](LICENSE)
 
-🇵🇱 [Wersja polska → README_PL.md](README_PL.md)
 
 </div>
 
