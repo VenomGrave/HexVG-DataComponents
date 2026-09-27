@@ -1,5 +1,6 @@
 package com.venomgrave.hexvg.datacomponents.events;
 
+import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Cancellable;
 import org.bukkit.event.Event;
@@ -20,6 +21,7 @@ public class DataComponentRemoveEvent extends Event implements Cancellable {
 
     public DataComponentRemoveEvent(@Nullable Player player, @NotNull ItemStack item,
                                     @NotNull String componentName, @Nullable Object removedValue) {
+        super(!Bukkit.isPrimaryThread());
         this.player = player;
         this.item = item;
         this.componentName = componentName;

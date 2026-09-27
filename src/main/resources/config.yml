@@ -1,1 +1,11 @@
+# Wypisuje dodatkowe komunikaty diagnostyczne i wylacza tlumienie powtarzajacych sie ostrzezen.
 debug: false
+
+# Limity chroniace przed tworzeniem gigantycznych przedmiotow (np. gdy skrypt przekazuje
+# do komponentu tekst wpisany przez gracza). Zbyt duze przedmioty moga rozlaczac graczy
+# lub uniemozliwic wczytanie chunka ("chunk ban").
+limits:
+  # Maksymalna dlugosc pojedynczego tekstu (nazwa, linia lore, strona ksiazki...).
+  max-string-length: 8192
+  # Maksymalna liczba elementow listy (linie lore, enchanty, atrybuty, wzory banneru...).
+  max-list-size: 256

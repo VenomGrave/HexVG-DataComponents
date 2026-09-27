@@ -4,59 +4,74 @@ import io.papermc.paper.datacomponent.DataComponentType;
 import io.papermc.paper.datacomponent.DataComponentTypes;
 
 import java.lang.reflect.Field;
+import java.lang.reflect.Modifier;
 import java.util.*;
-import java.util.logging.Logger;
 
 @SuppressWarnings("UnstableApiUsage")
 public final class ComponentTypeRegistry {
 
-    private static final Logger LOGGER = Logger.getLogger("HexVG-DataComponents");
-    private static final Map<String, DataComponentType> TYPE_CACHE = new HashMap<>();
-    private static final Map<String, DataComponentType.Valued<?>> VALUED_CACHE = new HashMap<>();
-    private static boolean initialized = false;
+    // Mapy sa budowane raz i publikowane jako niemodyfikowalne - bezpieczne przy odczycie z wielu watkow.
+    private static volatile Map<String, DataComponentType> typeCache = Map.of();
+    private static volatile Map<String, DataComponentType.Valued<?>> valuedCache = Map.of();
+    private static volatile List<String> sortedNames = List.of();
+    private static volatile boolean initialized = false;
 
     private ComponentTypeRegistry() {}
 
-    public static void initialize() {
+    public static synchronized void initialize() {
         if (initialized) return;
 
-        for (Field field : DataComponentTypes.class.getDeclaredFields()) {
+        Map<String, DataComponentType> types = new HashMap<>();
+        Map<String, DataComponentType.Valued<?>> valued = new HashMap<>();
+
+        for (Field field : DataComponentTypes.class.getFields()) {
+            if (!Modifier.isStatic(field.getModifiers())) continue;
+            if (!DataComponentType.class.isAssignableFrom(field.getType())) continue;
             try {
-                if (!DataComponentType.class.isAssignableFrom(field.getType())) continue;
-                field.setAccessible(true);
                 DataComponentType type = (DataComponentType) field.get(null);
                 if (type == null) continue;
                 String key = type.key().asString();
-                TYPE_CACHE.put(key, type);
-                if (type instanceof DataComponentType.Valued<?> valued) {
-                    VALUED_CACHE.put(key, valued);
-                }
-            } catch (Exception e) {
-                LOGGER.fine("[HexVG-DC] Nie mozna zaladowac pola: " + field.getName());
+                types.put(key, type);
+                if (type instanceof DataComponentType.Valued<?> v) valued.put(key, v);
+            } catch (Exception | LinkageError e) {
+                ComponentLogger.debug("Nie mozna zaladowac pola: " + field.getName());
             }
         }
 
-        LOGGER.info("[HexVG-DC] Zaladowano " + TYPE_CACHE.size() + " typow komponentow (" + VALUED_CACHE.size() + " valued).");
+        typeCache = Collections.unmodifiableMap(types);
+        valuedCache = Collections.unmodifiableMap(valued);
+        sortedNames = types.keySet().stream().sorted().toList();
         initialized = true;
+
+        ComponentLogger.info("Zaladowano " + types.size() + " typow komponentow (" + valued.size() + " valued).");
+    }
+
+    private static void ensureInitialized() {
+        if (!initialized) initialize();
     }
 
     public static Optional<DataComponentType> getType(String name) {
-        if (!initialized) initialize();
-        return Optional.ofNullable(TYPE_CACHE.get(name));
+        ensureInitialized();
+        return name == null ? Optional.empty() : Optional.ofNullable(typeCache.get(name));
     }
 
     public static Optional<DataComponentType.Valued<?>> getValuedType(String name) {
-        if (!initialized) initialize();
-        return Optional.ofNullable(VALUED_CACHE.get(name));
+        ensureInitialized();
+        return name == null ? Optional.empty() : Optional.ofNullable(valuedCache.get(name));
     }
 
     public static boolean isKnown(String name) {
-        if (!initialized) initialize();
-        return TYPE_CACHE.containsKey(name);
+        ensureInitialized();
+        return name != null && typeCache.containsKey(name);
+    }
+
+    public static int size() {
+        ensureInitialized();
+        return typeCache.size();
     }
 
     public static List<String> getAllComponentNames() {
-        if (!initialized) initialize();
-        return TYPE_CACHE.keySet().stream().sorted().toList();
+        ensureInitialized();
+        return sortedNames;
     }
 }

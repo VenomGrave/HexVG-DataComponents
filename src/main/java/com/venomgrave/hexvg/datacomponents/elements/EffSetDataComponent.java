@@ -37,6 +37,10 @@ public class EffSetDataComponent extends Effect {
         item = (Expression<ItemStack>) exprs[1];
         value = exprs[2];
         pattern = matchedPattern;
+        if (!Changer.ChangerUtils.acceptsChange(item, Changer.ChangeMode.SET, ItemStack.class)) {
+            Skript.error(item.toString(null, false) + " nie moze byc zmieniony - uzyj przedmiotu, ktory mozna ustawic (np. player's tool, zmienna).");
+            return false;
+        }
         return true;
     }
 
@@ -52,8 +56,9 @@ public class EffSetDataComponent extends Effect {
         if (finalValue == null) return;
 
         ItemStack modified = stack.clone();
-        ItemComponentHandler.write(modified, name, finalValue, player);
-        item.change(event, new ItemStack[]{modified}, Changer.ChangeMode.SET);
+        if (ItemComponentHandler.write(modified, name, finalValue, player)) {
+            item.change(event, new ItemStack[]{modified}, Changer.ChangeMode.SET);
+        }
     }
 
     @SuppressWarnings("unchecked")

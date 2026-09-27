@@ -1,5 +1,6 @@
 package com.venomgrave.hexvg.datacomponents.events;
 
+import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Cancellable;
 import org.bukkit.event.Event;
@@ -22,6 +23,8 @@ public class DataComponentChangeEvent extends Event implements Cancellable {
     public DataComponentChangeEvent(@Nullable Player player, @NotNull ItemStack item,
                                     @NotNull String componentName,
                                     @Nullable Object oldValue, @Nullable Object newValue) {
+        // Event wywolany poza glownym watkiem musi byc oznaczony jako async, inaczej Paper rzuci wyjatek.
+        super(!Bukkit.isPrimaryThread());
         this.player = player;
         this.item = item;
         this.componentName = componentName;

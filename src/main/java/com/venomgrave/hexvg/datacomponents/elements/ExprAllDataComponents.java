@@ -36,15 +36,7 @@ public class ExprAllDataComponents extends SimpleExpression<String> {
     @Override
     @Nullable
     protected String[] get(Event event) {
-        ItemStack stack = item.getSingle(event);
-        if (stack == null || stack.getType().isAir()) return new String[0];
-        try {
-            return stack.getDataTypes().stream()
-                    .map(t -> t.key().asString())
-                    .toArray(String[]::new);
-        } catch (Exception e) {
-            return new String[0];
-        }
+        return ItemComponentHandler.getAllComponents(item.getSingle(event)).toArray(String[]::new);
     }
 
     @Override

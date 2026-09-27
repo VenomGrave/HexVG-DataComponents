@@ -29,6 +29,10 @@ public class EffRemoveDataComponent extends Effect {
     public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, SkriptParser.ParseResult parseResult) {
         componentName = (Expression<String>) exprs[0];
         item = (Expression<ItemStack>) exprs[1];
+        if (!Changer.ChangerUtils.acceptsChange(item, Changer.ChangeMode.SET, ItemStack.class)) {
+            Skript.error(item.toString(null, false) + " nie moze byc zmieniony - uzyj przedmiotu, ktory mozna ustawic (np. player's tool, zmienna).");
+            return false;
+        }
         return true;
     }
 
@@ -41,8 +45,9 @@ public class EffRemoveDataComponent extends Effect {
         Player player = ItemComponentHandler.extractPlayer(event);
 
         ItemStack modified = stack.clone();
-        ItemComponentHandler.remove(modified, name, player);
-        item.change(event, new ItemStack[]{modified}, Changer.ChangeMode.SET);
+        if (ItemComponentHandler.remove(modified, name, player)) {
+            item.change(event, new ItemStack[]{modified}, Changer.ChangeMode.SET);
+        }
     }
 
     @Override

@@ -4,6 +4,7 @@ import ch.njol.skript.Skript;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.ExpressionType;
 import ch.njol.skript.lang.SkriptParser;
+import ch.njol.skript.util.LiteralUtils;
 import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.util.Kleenean;
 import com.venomgrave.hexvg.datacomponents.handlers.ItemComponentHandler;
@@ -31,8 +32,9 @@ public class ExprItemWithComponent extends SimpleExpression<ItemStack> {
     public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, SkriptParser.ParseResult parseResult) {
         item = (Expression<ItemStack>) exprs[0];
         componentName = (Expression<String>) exprs[1];
-        value = (Expression<Object>) exprs[2];
-        return true;
+        // %object% zostawia literaly (np. 1, true) nieprzetworzone - trzeba je rozwiazac przed uzyciem.
+        value = LiteralUtils.defendExpression(exprs[2]);
+        return LiteralUtils.canInitSafely(value);
     }
 
     @Override

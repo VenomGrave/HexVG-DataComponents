@@ -8,6 +8,7 @@ import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.util.Kleenean;
 import com.venomgrave.hexvg.datacomponents.events.DataComponentChangeEvent;
 import com.venomgrave.hexvg.datacomponents.events.DataComponentRemoveEvent;
+import com.venomgrave.hexvg.datacomponents.utils.ComponentConverter;
 import org.bukkit.event.Event;
 import org.jetbrains.annotations.Nullable;
 
@@ -40,7 +41,7 @@ public class ExprEventComponentOldValue extends SimpleExpression<Object> {
         if (event instanceof DataComponentChangeEvent e) val = e.getOldValue();
         else if (event instanceof DataComponentRemoveEvent e) val = e.getRemovedValue();
         if (val == null) return new Object[0];
-        return new Object[]{val};
+        return new Object[]{ComponentConverter.toSingleValue(val)};
     }
 
     @Override
